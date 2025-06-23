@@ -1,9 +1,13 @@
+import { IsString, IsInt, IsOptional } from 'class-validator';
+
 export class AddCatDto {
+  @IsString()
   name: string;
+
+  @IsInt()
   age: number;
 
-  constructor(name: string, age: number) {
-    this.name = name;
-    this.age = age;
-  }
+  @IsOptional()
+  @IsString()
+  breed?: string;
 }

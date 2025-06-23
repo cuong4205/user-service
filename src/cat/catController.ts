@@ -1,25 +1,33 @@
-import { Controller, Get, Post, Body, Param } from '@nestjs/common';
+import { Controller, Get, Post, Body, Query, Delete } from '@nestjs/common';
 import { CatService } from './catService';
-import { Cat } from './model/Interface/catInterface';
-import { AddCatDto } from './model/DTO/addCatDto';
+import { Cat } from './model/Schema/catSchema';
 
 @Controller('cats')
 export class CatController {
   constructor(private catService: CatService) {}
 
   @Post('create')
-
-  createCat(@Body() createCatDto: AddCatDto): void {
-    this.catService.createCat(createCatDto);
+  async createCat(@Body() cat: Partial<Cat>) {
+    return this.catService.createCat(cat);
   }
 
   @Get('all')
-  getAllCats(): Cat[] {
-    return this.catService.getAllCats();
+  async getAllCats() {
+    return this.catService.findAll();
   }
 
-  @Get(':id')
-  getCatById(@Param('id') id: number): Cat {
-    return this.catService.getCatById(id);
+  @Get(':name')
+  async findByName(@Query('name') name: string ){
+    return this.catService.findByName(name);
+  }
+  
+  @Get(':breed')
+  async findByBreed(@Query('breed') breed: string) {
+    return this.catService.findByBreed(breed);
+  }
+
+  @Delete('/delete/:name')
+  async removeByName(@Query('name') name: string) {
+    return this.catService.removeByName(name);
   }
 }

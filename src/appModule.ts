@@ -6,9 +6,9 @@ import {
 } from '@nestjs/common';
 import { LoggerMiddleware } from './middleware/loggerMiddleware';
 import { CatModule } from './cat/catModule';
-
+import { DatabaseModule } from './database/database.module'
 @Module({
-  imports: [CatModule],
+  imports: [DatabaseModule, CatModule],
 })
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
