@@ -4,12 +4,12 @@ import {
   RequestMethod,
   MiddlewareConsumer,
 } from '@nestjs/common';
-import { LoggerMiddleware } from './user/middleware/loggerMiddleware';
+import { LoggerMiddleware } from './middleware/loggerMiddleware';
 import { UserModule } from './user/user.module';
 import { UserDatabaseModule } from './user/database/database.module'
 import { ConfigModule } from '@nestjs/config';
 import mongoConfig from './user/config/database.config';
-import { VideoDatabaseModule } from './video/database/mongo.moule';
+import { VideoDatabaseModule } from './video/database/mongo.module';
 import { VideoModule } from './video/video.module';
 @Module({
   imports: [

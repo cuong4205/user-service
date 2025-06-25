@@ -1,8 +1,12 @@
-import { Controller, Get, Post, Delete, Body, Param } from '@nestjs/common';
+import { Controller, Get, Post, Delete, Body, Query } from '@nestjs/common';
 import { VideoService } from './video.service';
 import { Video } from './model/video.schema';
 import { UploadVideoDto } from './model/uploadVideo.dto';
 
+/* todo: Handle not found exception
+  integrated elasticsearch
+  change video scheama to supports tag
+*/
 @Controller('videos')
 export class VideoController {
   constructor(private videoService: VideoService) {}
@@ -12,18 +16,24 @@ export class VideoController {
     return this.videoService.getAll();
   }
 
-  @Get('findByTitle/:title')
-  async findByTitle(@Param('title') title: string): Promise<Video | null> {
+  @Get('findByTitle')
+  async findByTitle(@Query('title') title: string): Promise<Video | null> {
     return this.videoService.findByTitle(title);
   }
 
-  @Post('uploadVideo')
+  @Post('upload')
+
   async uploadVideo(@Body() uploadVideoDto: UploadVideoDto): Promise<Video> {
     return this.videoService.uploadVideo(uploadVideoDto);
   }
 
-  @Delete('deleteVideo/:title')
-  async deleteVideo(@Param('title') title: string): Promise<Video | null> {
+  @Delete('delete')
+  async deleteVideo(@Query('title') title: string): Promise<Video | null> {
     return this.videoService.deleteVideo(title);
+  }
+
+  @Get('es/all')
+  async checkAllEsData(): Promise<any> {
+    return this.videoService.checkAllEsData();
   }
 }

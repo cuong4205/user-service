@@ -16,6 +16,12 @@ export class Video {
 
   @Prop()
   comment: string[]; 
+
+  @Prop()
+  tags: string[];
+
+  @Prop()
+  ageConstraint: number;
 }
 
 export const VideoSchema = SchemaFactory.createForClass(Video);

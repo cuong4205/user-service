@@ -19,8 +19,8 @@ export class UserController {
   async getAll(): Promise<User[]> {
     return this.userService.getAll();
   }
-
-  @Get('find/:name')
+  
+  @Get('find')
   async findByName(@Query('name') name: string): Promise<User | null> {
     return this.userService.findByName(name);
   }
