@@ -17,7 +17,7 @@ export class VideoController {
   }
 
   @Get('findByTitle')
-  async findByTitle(@Query('title') title: string): Promise<Video | null> {
+  async findByTitle(@Query('title') title: string): Promise<Video[] | null> {
     return this.videoService.findByTitle(title);
   }
 
@@ -32,8 +32,8 @@ export class VideoController {
     return this.videoService.deleteVideo(title);
   }
 
-  @Get('es/all')
-  async checkAllEsData(): Promise<any> {
-    return this.videoService.checkAllEsData();
+  @Get('find/owner/:userId')
+  async getByOwner(userId: string): Promise<Video[]> {
+    return this.videoService.findByOwner(userId);
   }
 }

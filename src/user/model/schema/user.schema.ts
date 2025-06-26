@@ -1,5 +1,6 @@
-import { Schema, Prop, SchemaFactory, raw } from '@nestjs/mongoose';
+import { Schema, Prop, SchemaFactory } from '@nestjs/mongoose';
 import { Document } from 'mongoose';
+import { Video } from 'src/video/model/video.schema';
 
 export type UserDocument = User & Document;
 
@@ -17,14 +18,9 @@ export class User {
   @Prop()
   email: string;
 
-  @Prop(
-    raw({
-      city: String,
-      street: String,
-      house: Number,
-    }),
-  )
-  address: object;
+  @Prop()
+  videos: Video[];
+
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);

@@ -16,7 +16,6 @@ export class UserService {
       .lean()
       .then((result) => result)
       .catch((error) => {
-        // handle the error
         throw error;
       });
   }
@@ -39,6 +38,9 @@ export class UserService {
 
   async createUser(user: Partial<User>): Promise<User> {
     const newUser = new this.UserModel(user);
+    if (!newUser) {
+      throw new NotFoundException('User not found');
+    }
     return newUser.save();
   }
 
@@ -50,4 +52,6 @@ export class UserService {
       return this.UserModel.findOneAndDelete({ name: new RegExp(name, 'i') });
     }
   }
+
+  // todo: find video
 }

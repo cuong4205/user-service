@@ -12,22 +12,29 @@ export class VideoService {
   ) {}
 
   async getAll(): Promise<Video[]> {
-    await this.esService.search('videos', { query: { match_all: {} } });
-    return this.VideoModel.find().exec();
+    try {
+      const rs = await this.esService.search('videos', {
+        query: { match_all: {} },
+      });
+      return rs.hits.hits.map((hit) => hit._source as Video);
+    } catch (error) {
+      throw new ResourceNotFoundException('Video not found');
+    }
   }
 
-  async findByTitle(title: string): Promise<Video> {
-    const video = await this.VideoModel.findOne({
-      title: new RegExp(title, 'i'),
-    }).exec();
+  async findByTitle(title: string): Promise<Video[]> {
+    const video = await this.esService.search('videos', {
+      query: { match: { title } },
+    });
 
     if (!video) {
       throw new ResourceNotFoundException(
         `Video with title "${title}" not found`,
       );
     }
+    const result = video.hits.hits.map((hit) => hit._source as Video);
 
-    return video;
+    return result;
   }
 
   async uploadVideo(uploadVideoDto: Partial<Video>): Promise<Video> {
@@ -64,9 +71,15 @@ export class VideoService {
     return deleted;
   }
 
-  async checkAllEsData(): Promise<any> {
-    return await this.esService.search('videos', {
-      query: { match_all: {} },
-    });
+  async findByOwner(userId: string): Promise<Video[]> {
+    try {
+      const result = await this.esService.search('videos', {
+        query: { match: { owner: userId } },
+      });
+
+      return result.hits.hits.map((hit) => hit._source as Video);
+    } catch (error) {
+      throw new ResourceNotFoundException('User not found');
+    }
   }
 }
