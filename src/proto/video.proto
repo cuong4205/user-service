@@ -1,0 +1,19 @@
+syntax = "proto3";
+
+package user;
+
+service VideoService {
+  rpc FindVideoByUserId (FindVideoByIdRequest) returns (VideoResponse);
+}
+
+message FindVideoByIdRequest {
+  string id = 1;
+}
+
+message VideoResponse {
+  string id = 1;
+  string title = 2;
+  string description = 3;
+  repeated string tags = 4
+  repeated string comments = 5;
+}

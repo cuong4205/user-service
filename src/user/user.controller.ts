@@ -8,8 +8,10 @@ import {
   Put,
 } from '@nestjs/common';
 import { UserService } from './user.service';
-import { User } from './model/schema/user.schema';
-import { UserDto } from './model/DTO/user.dto';
+import { User } from './model/user.schema';
+import { UserDto } from './model/user.dto';
+import { GrpcMethod } from '@nestjs/microservices';
+import { Types, ObjectId } from 'mongoose';
 
 @Controller('users')
 export class UserController {
@@ -19,10 +21,21 @@ export class UserController {
   async getAll(): Promise<User[]> {
     return this.userService.getAll();
   }
-  
-  @Get('find')
+
+  @Get('find/byName')
   async findByName(@Query('name') name: string): Promise<User | null> {
     return this.userService.findByName(name);
+  }
+
+  @Get('find/byEmail')
+  async findUserByEmail(@Query('email') email: string): Promise<User | null> {
+    return this.userService.findUserByEmail(email);
+  }
+
+  @GrpcMethod('UserService', 'FindUserById')
+  @Get('find/byId')
+  async findById(@Query('id') id: string): Promise<User | null> {
+    return await this.userService.findById(Types.ObjectId(id));
   }
 
   @Post('create')
@@ -30,16 +43,16 @@ export class UserController {
     return this.userService.createUser(user);
   }
 
-  @Put('update/:name')
+  @Put('update')
   async updateUser(
-    @Body() updateUser: Partial<User>,
-    @Query('name') name: string,
+    @Body() updateUser: UserDto,
+    @Query('id') id: string,
   ): Promise<User> {
-    return this.userService.updateUser(updateUser, name);
+    return this.userService.updateUser(updateUser, id);
   }
 
-  @Delete('delete/:name')
-  async deleteUserByName(@Query('name') name: string): Promise<User | null> {
-    return this.userService.deleteUserByName(name);
+  @Delete('delete')
+  async deleteUserById(@Query('name') id: string): Promise<User | null> {
+    return this.userService.deleteUserById(id);
   }
 }

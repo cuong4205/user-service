@@ -6,11 +6,13 @@ import {
 } from '@nestjs/common';
 import { LoggerMiddleware } from './middleware/loggerMiddleware';
 import { UserModule } from './user/user.module';
-import { UserDatabaseModule } from './user/database/database.module'
+import { UserDatabaseModule } from './user/database/database.module';
 import { ConfigModule } from '@nestjs/config';
 import mongoConfig from './user/config/database.config';
 import { VideoDatabaseModule } from './video/database/mongo.module';
 import { VideoModule } from './video/video.module';
+import { ClientModule } from 'src/user/user-client.module';
+
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -21,9 +23,9 @@ import { VideoModule } from './video/video.module';
     UserModule,
     VideoDatabaseModule,
     VideoModule,
+    ClientModule,
   ],
 })
-
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
     consumer
@@ -34,5 +36,4 @@ export class AppModule implements NestModule {
       .apply(LoggerMiddleware)
       .forRoutes({ path: 'video', method: RequestMethod.POST });
   }
-
 }

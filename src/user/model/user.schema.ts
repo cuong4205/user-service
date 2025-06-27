@@ -1,13 +1,14 @@
 import { Schema, Prop, SchemaFactory } from '@nestjs/mongoose';
 import { Document } from 'mongoose';
-import { Video } from 'src/video/model/video.schema';
-
 export type UserDocument = User & Document;
 
 @Schema({ timestamps: true })
 export class User {
+  @Prop({ unique: true })
+  id: string;
+
   @Prop({ require: true })
-  user_name: string;
+  name: string;
 
   @Prop()
   age: number;
@@ -15,12 +16,8 @@ export class User {
   @Prop()
   password: string;
 
-  @Prop()
+  @Prop({ unique: true, index: true })
   email: string;
-
-  @Prop()
-  videos: Video[];
-
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);

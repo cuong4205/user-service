@@ -1,10 +1,10 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model, ObjectId } from 'mongoose';
+import { Model, Types, ObjectId } from 'mongoose';
 import { Video, VideoDocument } from './model/video.schema';
 
 @Injectable()
-export class VideoService {
+export class VideoRepository {
   constructor(
     @InjectModel(Video.name) private readonly videoModel: Model<VideoDocument>,
   ) {}
@@ -14,7 +14,8 @@ export class VideoService {
   }
 
   async findById(id: string | ObjectId): Promise<Video | null> {
-    return this.videoModel.findById(id).exec();
+    const objectId = typeof id === 'string' ? new Types.ObjectId(id) : id;
+    return this.videoModel.findById(objectId).exec();
   }
 
   async findByTitle(title: string): Promise<Video[]> {
@@ -33,14 +34,19 @@ export class VideoService {
       .exec();
   }
 
-  async findByOwner(ownerId: string): Promise<Video[]> {
-    return this.videoModel.find({ owner: ownerId }).exec();
+  async findByOwner(ownerId: string | ObjectId): Promise<Video[]> {
+    const objectId =
+      typeof ownerId === 'string' ? new Types.ObjectId(ownerId) : ownerId;
+    return this.videoModel.find({ owner: objectId }).exec();
   }
 
   async updateById(
     id: string | ObjectId,
     update: Partial<Video>,
   ): Promise<Video | null> {
-    return this.videoModel.findByIdAndUpdate(id, update, { new: true }).exec();
+    const objectId = typeof id === 'string' ? new Types.ObjectId(id) : id;
+    return this.videoModel
+      .findByIdAndUpdate(objectId, update, { new: true })
+      .exec();
   }
 }

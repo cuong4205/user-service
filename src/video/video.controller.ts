@@ -4,9 +4,7 @@ import { Video } from './model/video.schema';
 import { UploadVideoDto } from './model/uploadVideo.dto';
 
 /* todo: Handle not found exception
-  integrated elasticsearch
-  change video scheama to supports tag
-*/
+ */
 @Controller('videos')
 export class VideoController {
   constructor(private videoService: VideoService) {}
@@ -22,7 +20,6 @@ export class VideoController {
   }
 
   @Post('upload')
-
   async uploadVideo(@Body() uploadVideoDto: UploadVideoDto): Promise<Video> {
     return this.videoService.uploadVideo(uploadVideoDto);
   }
@@ -32,8 +29,8 @@ export class VideoController {
     return this.videoService.deleteVideo(title);
   }
 
-  @Get('find/owner/:userId')
-  async getByOwner(userId: string): Promise<Video[]> {
-    return this.videoService.findByOwner(userId);
+  @Get('find/owner')
+  async getByOwner(@Query('id') id: string): Promise<Video[]> {
+    return this.videoService.findByOwner(id);
   }
 }

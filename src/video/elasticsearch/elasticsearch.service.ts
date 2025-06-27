@@ -27,7 +27,7 @@ export class CustomEsService {
       throw new NotFoundException('index not found');
     }
     return esIndex;
-  } 
+  }
 
   async delete(index: string, id: string) {
     const esIndex = await this.esClient.delete({

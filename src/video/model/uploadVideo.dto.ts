@@ -13,9 +13,12 @@ export class UploadVideoDto {
 
   @IsOptional()
   @IsString({ each: true })
-  tags: string[];
+  tags?: string[];
 
   @IsOptional()
   @IsInt()
   ageConstraint: number;
+
+  @IsString()
+  ownerId: string;
 }
