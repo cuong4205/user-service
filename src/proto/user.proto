@@ -3,10 +3,10 @@ syntax = "proto3";
 package user;
 
 service UserService {
-  rpc FindById (FindByIdRequest) returns (UserResponse);
+  rpc FindUserById (FindByIdRequest) returns (UserResponse);
 }
 
-message FindByIdRequest {
+message FindUserByIdRequest {
   string id = 1;
 }
 

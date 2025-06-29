@@ -1,4 +1,22 @@
 services:
+  user-service:
+    build: ./src/user
+    ports:
+      - "3000:3000"
+      - "5052:5052"
+    depends_on:
+      - mongo
+    restart: always
+
+  video-service:
+    build: ./src/video
+    ports:
+      - "3001:3000"
+      - "5053:5052"
+    depends_on:
+      - mongo
+      - elasticsearch
+    restart: always
   mongo:
     image: mongo
     container_name: mongo_data
@@ -39,7 +57,6 @@ services:
 networks:
   elk:
     driver: bridge
-
 
 volumes: 
   mongo-data:

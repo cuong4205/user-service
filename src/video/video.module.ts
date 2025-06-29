@@ -3,15 +3,14 @@ import { VideoService } from './video.service';
 import { MongooseModule } from '@nestjs/mongoose';
 import { Video, VideoSchema } from './model/video.schema';
 import { VideoController } from './video.controller';
-import { UserClientsModule } from 'src/user/user-client.module';
-
+import { VideoClientsModule } from './video-client.module';
 import { CustomEsModule } from './elasticsearch/elasticsearch.module';
 
 @Module({
   imports: [
     MongooseModule.forFeature([{ name: Video.name, schema: VideoSchema }]),
     CustomEsModule,
-    UserClientsModule,
+    VideoClientsModule,
   ],
   controllers: [VideoController],
   providers: [VideoService],

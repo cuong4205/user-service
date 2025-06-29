@@ -4,12 +4,13 @@ import { User } from './model/user.schema';
 import { ClientGrpc } from '@nestjs/microservices';
 import { UserDto } from './model/user.dto';
 import { UserRepository } from './user.repository';
-import { Observable } from 'rxjs';
+import { lastValueFrom, Observable } from 'rxjs';
+import { Video } from '../video/model/video.schema';
 
 @Injectable()
 export class UserService {
   private videoService: {
-    findVideoByUserId(request: { id: ObjectId }): Observable<any>;
+    findVideoByUserId(request: { id: string }): Observable<Video>;
   };
 
   constructor(
@@ -22,32 +23,30 @@ export class UserService {
   }
 
   async getAll(): Promise<User[]> {
-    return this.userRepository.findAll();
+    const result = await this.userRepository.findAll();
+    if (!result) {
+      throw new NotFoundException('User not found');
+    }
+    return result;
   }
 
   async findByName(name: string): Promise<User | null> {
-    try {
-      const result = await this.userRepository.findByName(name);
-      if (!result) throw new NotFoundException('User not found');
-      return result;
-    } catch (error) {
-      console.error('Error in findByName:', error);
-      throw error;
+    const result = await this.userRepository.findByName(name);
+    if (!result) {
+      throw new NotFoundException('User not found');
     }
+    return result;
   }
 
   async findUserByEmail(email: string): Promise<User | null> {
-    try {
-      const result = await this.userRepository.findByEmail(email);
-      if (!result) throw new NotFoundException('User not found');
-      return result;
-    } catch (error) {
-      console.error('Error in findUserByEmail:', error);
-      throw error;
+    const result = await this.userRepository.findByEmail(email);
+    if (!result) {
+      throw new NotFoundException('User not found');
     }
+    return result;
   }
 
-  async findById(id: string | ObjectId): Promise<User | null> {
+  async findUserById(id: string | ObjectId): Promise<User | null> {
     const result = await this.userRepository.findById(id);
     if (!result) {
       throw new NotFoundException('Cannot find user');
@@ -56,18 +55,11 @@ export class UserService {
   }
 
   async updateUser(updateUser: UserDto, id: string): Promise<User> {
-    try {
-      const updatedUser = await this.userRepository.update(id, updateUser);
-      if (!updatedUser) {
-        throw new NotFoundException('User not found');
-      }
-      return updatedUser;
-    } catch (error) {
-      if (error instanceof NotFoundException) {
-        throw error;
-      }
-      throw error;
+    const updatedUser = await this.userRepository.update(id, updateUser);
+    if (!updatedUser) {
+      throw new NotFoundException('User not found');
     }
+    return updatedUser;
   }
 
   async createUser(user: Partial<User>): Promise<User> {
@@ -79,7 +71,23 @@ export class UserService {
   }
 
   async deleteUserById(id: string): Promise<User | null> {
-    return this.userRepository.deleteById(id);
+    const result = await this.userRepository.deleteById(id);
+    if (!result) {
+      throw new NotFoundException('User not found');
+    }
+    return result;
   }
   // todo: find video
+
+  async findVideoByUserId(id: string): Promise<Video> {
+    try {
+      const result = await lastValueFrom(
+        this.videoService.findVideoByUserId({ id }),
+      );
+      return result;
+    } catch (error) {
+      console.log(error);
+      throw new NotFoundException('Video not found');
+    }
+  }
 }
