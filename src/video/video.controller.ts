@@ -13,17 +13,32 @@ export class VideoController {
 
   @Get('all')
   async getAll(): Promise<Video[]> {
-    return await this.videoService.getAll();
+    try {
+      return await this.videoService.getAll();
+    } catch (error) {
+      console.log(error);
+      throw new ResourceNotFoundException('Videos not found');
+    }
   }
 
   @Get('findByTitle')
-  async findByTitle(@Query('title') title: string): Promise<Video[] | null> {
-    return await this.videoService.findByTitle(title);
+  async findByTitle(@Query('title') title: string): Promise<Video | null> {
+    try {
+      return await this.videoService.findByTitle(title);
+    } catch (error) {
+      console.log(error);
+      throw new ResourceNotFoundException('Video not found');
+    }
   }
 
   @Post('upload')
   async uploadVideo(@Body() uploadVideoDto: UploadVideoDto): Promise<Video> {
-    return await this.videoService.create(uploadVideoDto);
+    try {
+      return await this.videoService.create(uploadVideoDto);
+    } catch (error) {
+      console.log(error);
+      throw new ResourceNotFoundException('Video not created');
+    }
   }
 
   @Delete('delete')
@@ -42,11 +57,21 @@ export class VideoController {
 
   @Get('find/owner')
   async findByOwnerId(@Query('id') id: string): Promise<Video[]> {
-    return await this.videoService.findByOwnerId(id);
+    try {
+      return await this.videoService.findByOwnerId(id);
+    } catch (error) {
+      console.log(error);
+      throw new ResourceNotFoundException('Videos not found');
+    }
   }
 
-  @Get('findOwner')
-  async findUserByIdAsync(@Query('id') id: string): Promise<User> {
-    return await this.videoService.findUserByIdAsync(id);
+  @Get('find/user')
+  async findUserById(@Query('id') id: string): Promise<User> {
+    try {
+      return await this.videoService.findUserById(id);
+    } catch (error) {
+      console.log(error);
+      throw new ResourceNotFoundException('User not found');
+    }
   }
 }

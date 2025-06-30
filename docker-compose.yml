@@ -21,8 +21,8 @@ services:
     image: mongo
     container_name: mongo_data
     environment: 
-      MONGO_INITDB_ROOT_USERNAME: cuong040205a7
-      MONGO_INITDB_ROOT_PASSWORD: c3QXJdnBd5m68Ejk
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_INITDB_ROOT_USERNAME}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_INITDB_ROOT_PASSWORD}
     ports:
       - "27017:27017"
     volumes:
@@ -54,6 +54,12 @@ services:
     depends_on:
       - elasticsearch
 
+  redis: 
+    image: redis
+    container_name: redis_app
+    ports:
+      - "6379:6379"
+
 networks:
   elk:
     driver: bridge
@@ -61,3 +67,4 @@ networks:
 volumes: 
   mongo-data:
   es-data:
+  redis-data:

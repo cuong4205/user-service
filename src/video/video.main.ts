@@ -19,5 +19,18 @@ async function bootstrap() {
   );
   await grpcApp.listen();
   console.log('gRPC User Service is running on localhost:5052');
+
+  const redisApp = await NestFactory.createMicroservice<MicroserviceOptions>(
+    VideoModule,
+    {
+      transport: Transport.REDIS,
+      options: {
+        host: 'localhost',
+        port: 6379,
+      },
+    },
+  );
+  await redisApp.listen();
+  console.log('Redis User Service is running on localhost:6379');
 }
 bootstrap();

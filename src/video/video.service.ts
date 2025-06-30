@@ -59,17 +59,23 @@ export class VideoService {
     }
   }
 
-  async findByTitle(title: string): Promise<Video[]> {
+  async findByTitle(title: string): Promise<Video> {
     if (!title) {
-      throw new BadRequestException('Video title is required');
+      throw new BadRequestException('Video ID is required');
     }
 
     try {
-      const videos = await this.videoRepository.findByTitle(title);
-      return videos; // Return empty array if no videos found, don't throw error
+      const result = await this.videoRepository.findByTitle(title);
+      if (!result) {
+        throw new NotFoundException(`Video with ID ${title} not found`);
+      }
+      return result;
     } catch (error) {
-      console.error(`Error finding videos by title ${title}:`, error);
-      throw new Error('Failed to search videos by title');
+      if (error instanceof NotFoundException) {
+        throw error;
+      }
+      console.error(`Error finding video by ID ${title}:`, error);
+      throw new Error('Failed to find video');
     }
   }
 
@@ -146,20 +152,7 @@ export class VideoService {
     }
   }
 
-  findUserById(id: string): Observable<User> {
-    if (!id) {
-      throw new BadRequestException('User ID is required');
-    }
-
-    try {
-      return this.userService.findUserById({ id });
-    } catch (error) {
-      console.error(`Error finding user by ID ${id}:`, error);
-      throw new NotFoundException('User not found');
-    }
-  }
-
-  async findUserByIdAsync(id: string): Promise<User> {
+  async findUserById(id: string): Promise<User> {
     if (!id) {
       throw new BadRequestException('User ID is required');
     }

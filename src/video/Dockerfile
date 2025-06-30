@@ -7,7 +7,7 @@ WORKDIR /..
 # Copy package files and install dependencies then remove unneccessary dependencies
 COPY /../package*.json ./
 RUN rm -rf node_modules
-RUN npm install
+RUN npm install -g
 RUN npm prune  
 
 # Copy user service source code
