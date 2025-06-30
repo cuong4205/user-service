@@ -8,8 +8,8 @@ import { ClientsModule, Transport } from '@nestjs/microservices';
         name: 'VIDEO_PACKAGE',
         transport: Transport.GRPC,
         options: {
-          package: 'user',
-          protoPath: './src/video/proto/video.proto',
+          package: 'video',
+          protoPath: './src/proto/video.proto',
           url: 'localhost:5052',
         },
       },

@@ -82,7 +82,7 @@ export class UserController {
   }
 
   @Delete('delete')
-  async deleteUserById(@Query('name') id: string): Promise<User | null> {
+  async deleteUserById(@Query('id') id: string): Promise<User | null> {
     try {
       return await this.userService.deleteUserById(id);
     } catch (error) {

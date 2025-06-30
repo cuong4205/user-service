@@ -6,5 +6,7 @@
     "deleteOutDir": true,
     "assets": ["**/*.proto"],
     "watchAssets": true
-  }
+  },
+  "monorepo": true,
+  "root": "apps"
 }

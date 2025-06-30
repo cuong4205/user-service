@@ -4,16 +4,25 @@ import { UserController } from './user.controller';
 import { MongooseModule } from '@nestjs/mongoose';
 import { User, UserSchema } from './model/user.schema';
 import { UserClientsModule } from './user-client.module';
-import { DatabaseModule } from '../lib/common/mongodb/database.module';
+import { UserDatabaseModule } from './mongodb/database.module';
+import { UserRepository } from './user.repository';
+import { VideoClientsModule } from './video-client.module';
+import mongoConfig from './mongodb/database.config';
+import { ConfigModule } from '@nestjs/config';
 
 @Module({
   imports: [
+    ConfigModule.forRoot({
+      isGlobal: true,
+      load: [mongoConfig],
+    }),
     MongooseModule.forFeature([{ name: User.name, schema: UserSchema }]),
     UserClientsModule,
-    DatabaseModule,
+    UserDatabaseModule,
+    VideoClientsModule,
   ],
   controllers: [UserController],
-  providers: [UserService],
+  providers: [UserService, UserRepository],
   exports: [UserService],
 })
 export class UserModule {}

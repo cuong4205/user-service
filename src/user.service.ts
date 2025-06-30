@@ -5,12 +5,10 @@ import { ClientGrpc } from '@nestjs/microservices';
 import { UserDto } from './model/user.dto';
 import { UserRepository } from './user.repository';
 import { lastValueFrom, Observable } from 'rxjs';
-import { Video } from '../video/model/video.schema';
-
 @Injectable()
 export class UserService {
   private videoService: {
-    findVideoByUserId(request: { id: string }): Observable<Video>;
+    findVideoByUserId(request: { id: string }): Observable<any>;
   };
 
   constructor(
@@ -79,8 +77,9 @@ export class UserService {
   }
   // todo: find video
 
-  async findVideoByUserId(id: string): Promise<Video> {
+  async findVideoByUserId(id: string): Promise<any> {
     try {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
       const result = await lastValueFrom(
         this.videoService.findVideoByUserId({ id }),
       );

@@ -8,7 +8,6 @@ import { UserDto } from './model/user.dto';
 export class UserRepository {
   constructor(
     @InjectModel(User.name) private readonly userModel: Model<UserDocument>,
-    
   ) {}
 
   async findAll(): Promise<User[]> {
