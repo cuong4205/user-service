@@ -21,7 +21,7 @@ services:
       MONGO_INITDB_ROOT_USERNAME: cuong040205a7
       MONGO_INITDB_ROOT_PASSWORD: c3QXJdnBd5m68Ejk
     ports:
-      - "27017:27017"
+      - "27018:27017"
     volumes:
       - mongo-data:/data/db
 

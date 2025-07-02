@@ -10,7 +10,7 @@ import { ClientsModule, Transport } from '@nestjs/microservices';
         options: {
           package: 'video',
           protoPath: './src/proto/video.proto',
-          url: 'localhost:5052',
+          url: 'localhost:50001',
         },
       },
     ]),

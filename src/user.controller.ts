@@ -11,6 +11,7 @@ import { UserService } from './user.service';
 import { User } from './model/user.schema';
 import { UserDto } from './model/user.dto';
 import { GrpcMethod } from '@nestjs/microservices';
+import { Observable } from 'rxjs';
 
 @Controller('users')
 export class UserController {
@@ -45,7 +46,6 @@ export class UserController {
       throw error;
     }
   }
-
   @GrpcMethod('UserService', 'FindUserById')
   @Get('find/byId')
   async findUserById(@Query('id') id: string): Promise<User | null> {
@@ -87,6 +87,31 @@ export class UserController {
       return await this.userService.deleteUserById(id);
     } catch (error) {
       console.error('Error in deleteUserById:', error);
+      throw error;
+    }
+  }
+
+  @Get('test')
+  testGrpc(@Query('message') message: string): Observable<any> {
+    return this.userService.testGrpc(message);
+  }
+
+  @Get('video/id')
+  async findVideosByOwnerIdGrpc(@Query('id') id: string): Promise<any> {
+    try {
+      return await this.userService.findVideosByOwnerIdGrpc({ id });
+    } catch (error) {
+      console.error('Error in findVideoByUserId:', error);
+      throw error;
+    }
+  }
+
+  @Post('video')
+  async uploadVideo(@Body() video: any): Promise<any> {
+    try {
+      return await this.userService.uploadVideo(video);
+    } catch (error) {
+      console.error('Error in uploadVideo:', error);
       throw error;
     }
   }

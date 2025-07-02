@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Module, NestModule } from '@nestjs/common';
 import { UserService } from './user.service';
 import { UserController } from './user.controller';
 import { MongooseModule } from '@nestjs/mongoose';
@@ -9,6 +9,8 @@ import { UserRepository } from './user.repository';
 import { VideoClientsModule } from './video-client.module';
 import mongoConfig from './mongodb/database.config';
 import { ConfigModule } from '@nestjs/config';
+import { MiddlewareConsumer } from '@nestjs/common/interfaces';
+import { LoggerMiddleware } from './middleware/loggerMiddleware';
 
 @Module({
   imports: [
@@ -25,4 +27,8 @@ import { ConfigModule } from '@nestjs/config';
   providers: [UserService, UserRepository],
   exports: [UserService],
 })
-export class UserModule {}
+export class UserModule implements NestModule {
+  configure(consumer: MiddlewareConsumer) {
+    consumer.apply(LoggerMiddleware).forRoutes(UserController);
+  }
+}

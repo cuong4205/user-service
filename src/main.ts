@@ -12,10 +12,11 @@ async function bootstrap() {
       options: {
         package: 'user',
         protoPath: './src/proto/user.proto',
-        url: 'localhost:5052',
+        url: 'localhost:50000',
       },
     },
   );
   await grpcApp.listen();
+  console.log('User service started');
 }
 bootstrap();

@@ -1,14 +1,29 @@
-import { Injectable, NotFoundException, Inject } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  Inject,
+  OnModuleInit,
+} from '@nestjs/common';
 import { ObjectId } from 'mongoose';
 import { User } from './model/user.schema';
 import { ClientGrpc } from '@nestjs/microservices';
 import { UserDto } from './model/user.dto';
 import { UserRepository } from './user.repository';
-import { lastValueFrom, Observable } from 'rxjs';
+import { lastValueFrom, Observable, of } from 'rxjs';
 @Injectable()
-export class UserService {
+export class UserService implements OnModuleInit {
   private videoService: {
-    findVideoByUserId(request: { id: string }): Observable<any>;
+    findVideosByOwnerIdGrpc(request: { id: string }): Observable<any>;
+    testGrpc(request: { message: string }): Observable<any>;
+    uploadVideo(request: {
+      video: {
+        id: string;
+        title: string;
+        description: string;
+        ownerId: string;
+      };
+    }): Observable<any>;
+    addComment(request: { id: string; comment: string }): Observable<any>;
   };
 
   constructor(
@@ -18,6 +33,7 @@ export class UserService {
 
   onModuleInit() {
     this.videoService = this.client.getService('VideoService');
+    console.log('Initialize video service client');
   }
 
   async getAll(): Promise<User[]> {
@@ -47,8 +63,11 @@ export class UserService {
   async findUserById(id: string | ObjectId): Promise<User | null> {
     const result = await this.userRepository.findById(id);
     if (!result) {
+      console.log(id);
+      console.log(result);
       throw new NotFoundException('Cannot find user');
     }
+    console.log('succes');
     return result;
   }
 
@@ -77,11 +96,42 @@ export class UserService {
   }
   // todo: find video
 
-  async findVideoByUserId(id: string): Promise<any> {
+  async findVideosByOwnerIdGrpc(request: { id: string }): Promise<any> {
     try {
       // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
       const result = await lastValueFrom(
-        this.videoService.findVideoByUserId({ id }),
+        this.videoService.findVideosByOwnerIdGrpc(request),
+      );
+      return result;
+    } catch (error) {
+      console.log(request);
+      console.log(error);
+      throw new NotFoundException('Video not found');
+    }
+  }
+  testGrpc(message: string): Observable<any> {
+    if (!message) {
+      throw new Error('Request object is undefined');
+    }
+    return of({ message: 'Hello from VideoService!' });
+  }
+
+  async uploadVideo(video: any): Promise<any> {
+    try {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+      const result = await lastValueFrom(this.videoService.uploadVideo(video));
+      return result;
+    } catch (error) {
+      console.log(error);
+      throw new NotFoundException('Video not found');
+    }
+  }
+
+  async addComment(id: string, comment: string): Promise<any> {
+    try {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+      const result = await lastValueFrom(
+        this.videoService.addComment({ id, comment }),
       );
       return result;
     } catch (error) {

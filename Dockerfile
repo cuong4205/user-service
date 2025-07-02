@@ -13,12 +13,12 @@ RUN npm prune
 # Copy user service source code
 COPY . .
 
-# Build the NestJS project (if using TypeScript)
+# Build the NestJS project 
 RUN npm run build
 
-# Expose the port your service listens on (e.g., 3000 for HTTP, 5051 for gRPC)
+# Expose the port your service listens on 
 EXPOSE 3000
-EXPOSE 5051
+EXPOSE 50000
 
 # Start the service
 CMD ["npm", "run", "start:prod"]
