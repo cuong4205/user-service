@@ -33,7 +33,7 @@ export class UserService implements OnModuleInit {
 
   onModuleInit() {
     this.videoService = this.client.getService('VideoService');
-    console.log('Initialize video service client');
+    console.log('VideoService', this.videoService);
   }
 
   async getAll(): Promise<User[]> {
@@ -60,15 +60,16 @@ export class UserService implements OnModuleInit {
     return result;
   }
 
-  async findUserById(id: string | ObjectId): Promise<User | null> {
-    const result = await this.userRepository.findById(id);
+  async findUserById(request: { id: string }): Promise<{ user: User }> {
+    const result = await this.userRepository.findById(request.id);
     if (!result) {
-      console.log(id);
+      console.log(request);
       console.log(result);
       throw new NotFoundException('Cannot find user');
     }
     console.log('succes');
-    return result;
+    console.log(result);
+    return { user: result };
   }
 
   async updateUser(updateUser: UserDto, id: string): Promise<User> {
@@ -113,7 +114,7 @@ export class UserService implements OnModuleInit {
     if (!message) {
       throw new Error('Request object is undefined');
     }
-    return of({ message: 'Hello from VideoService!' });
+    return this.videoService.testGrpc({ message });
   }
 
   async uploadVideo(video: any): Promise<any> {

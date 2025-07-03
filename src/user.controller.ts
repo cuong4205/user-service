@@ -48,9 +48,9 @@ export class UserController {
   }
   @GrpcMethod('UserService', 'FindUserById')
   @Get('find/byId')
-  async findUserById(@Query('id') id: string): Promise<User | null> {
+  async findUserById(request: { id: string }): Promise<{ user: User }> {
     try {
-      const result = await this.userService.findUserById(id);
+      const result = await this.userService.findUserById(request);
       return result;
     } catch (error) {
       console.error('Error in findUserById:', error);
