@@ -10,5 +10,8 @@ export class UserDto {
   age: number;
 
   @IsString()
+  email: string;
+
+  @IsString()
   password: string;
 }

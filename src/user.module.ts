@@ -11,6 +11,7 @@ import mongoConfig from './mongodb/database.config';
 import { ConfigModule } from '@nestjs/config';
 import { MiddlewareConsumer } from '@nestjs/common/interfaces';
 import { LoggerMiddleware } from './middleware/loggerMiddleware';
+import { UserGrpcController } from './user-grpc.controller';
 
 @Module({
   imports: [
@@ -23,7 +24,7 @@ import { LoggerMiddleware } from './middleware/loggerMiddleware';
     UserDatabaseModule,
     VideoClientsModule,
   ],
-  controllers: [UserController],
+  controllers: [UserController, UserGrpcController],
   providers: [UserService, UserRepository],
   exports: [UserService],
 })

@@ -9,6 +9,16 @@ export class UserGrpcController {
 
   @GrpcMethod('UserService', 'FindUserById')
   async findUserById(request: { id: string }): Promise<{ user: User }> {
-    return this.userService.findUserById(request);
+    return await this.userService.findUserById(request);
+  }
+
+  @GrpcMethod('UserService', 'FindUserByEmail')
+  async findUserByEmail(request: { email: string }): Promise<{ user: User }> {
+    return await this.userService.findUserByEmail(request);
+  }
+
+  @GrpcMethod('UserService', 'CreateUser')
+  async createUser(user: User): Promise<{ user: User }> {
+    return await this.userService.createUser(user);
   }
 }

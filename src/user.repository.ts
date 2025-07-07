@@ -37,7 +37,7 @@ export class UserRepository {
     return newUser.save();
   }
 
-  async update(id: string, updateUser: Partial<UserDto>): Promise<User | null> {
+  async update(id: string, updateUser: UserDto): Promise<User | null> {
     return this.userModel
       .findByIdAndUpdate(id, updateUser, { new: true })
       .lean()

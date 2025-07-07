@@ -9,9 +9,8 @@ import {
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import { User } from './model/user.schema';
-import { UserDto } from './model/user.dto';
-import { GrpcMethod } from '@nestjs/microservices';
 import { Observable } from 'rxjs';
+import { UserDto } from './model/user.dto';
 
 @Controller('users')
 export class UserController {
@@ -38,28 +37,29 @@ export class UserController {
   }
 
   @Get('find/byEmail')
-  async findUserByEmail(@Query('email') email: string): Promise<User | null> {
+  async findUserByEmail(
+    @Query('email') email: string,
+  ): Promise<{ user: User }> {
     try {
-      return await this.userService.findUserByEmail(email);
+      return await this.userService.findUserByEmail({ email });
     } catch (error) {
       console.error('Error in findUserByEmail:', error);
       throw error;
     }
   }
-  @GrpcMethod('UserService', 'FindUserById')
   @Get('find/byId')
-  async findUserById(request: { id: string }): Promise<{ user: User }> {
+  async findUserById(@Query('id') id: string): Promise<{ user: User }> {
     try {
-      const result = await this.userService.findUserById(request);
+      const result = await this.userService.findUserById({ id });
       return result;
     } catch (error) {
-      console.error('Error in findUserById:', error);
+      console.error('Error find user:', error);
       throw error;
     }
   }
 
   @Post('create')
-  async createUser(@Body() user: UserDto): Promise<User> {
+  async createUser(@Body() user: User): Promise<{ user: User }> {
     try {
       return await this.userService.createUser(user);
     } catch (error) {

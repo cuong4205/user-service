@@ -4,17 +4,17 @@ import {
   Inject,
   OnModuleInit,
 } from '@nestjs/common';
-import { ObjectId } from 'mongoose';
 import { User } from './model/user.schema';
 import { ClientGrpc } from '@nestjs/microservices';
 import { UserDto } from './model/user.dto';
 import { UserRepository } from './user.repository';
-import { lastValueFrom, Observable, of } from 'rxjs';
+import { lastValueFrom, Observable } from 'rxjs';
 @Injectable()
 export class UserService implements OnModuleInit {
   private videoService: {
     findVideosByOwnerIdGrpc(request: { id: string }): Observable<any>;
     testGrpc(request: { message: string }): Observable<any>;
+
     uploadVideo(request: {
       video: {
         id: string;
@@ -52,12 +52,12 @@ export class UserService implements OnModuleInit {
     return result;
   }
 
-  async findUserByEmail(email: string): Promise<User | null> {
-    const result = await this.userRepository.findByEmail(email);
+  async findUserByEmail(request: { email: string }): Promise<{ user: User }> {
+    const result = await this.userRepository.findByEmail(request.email);
     if (!result) {
       throw new NotFoundException('User not found');
     }
-    return result;
+    return { user: result };
   }
 
   async findUserById(request: { id: string }): Promise<{ user: User }> {
@@ -80,12 +80,12 @@ export class UserService implements OnModuleInit {
     return updatedUser;
   }
 
-  async createUser(user: Partial<User>): Promise<User> {
+  async createUser(user: User): Promise<{ user: User }> {
     const newUser = await this.userRepository.create(user);
     if (!newUser) {
       throw new NotFoundException('User not found');
     }
-    return newUser;
+    return { user: newUser };
   }
 
   async deleteUserById(id: string): Promise<User | null> {
