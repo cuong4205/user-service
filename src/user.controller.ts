@@ -91,13 +91,8 @@ export class UserController {
     }
   }
 
-  @Get('test')
-  testGrpc(@Query('message') message: string): Observable<any> {
-    return this.userService.testGrpc(message);
-  }
-
   @Get('video/id')
-  async findVideosByOwnerIdGrpc(@Query('id') id: string): Promise<any> {
+  async findVideosByOwnerId(@Query('id') id: string): Promise<any> {
     try {
       return await this.userService.findVideosByOwnerIdGrpc({ id });
     } catch (error) {
@@ -107,7 +102,18 @@ export class UserController {
   }
 
   @Post('video')
-  async uploadVideo(@Body() video: any): Promise<any> {
+  async uploadVideo(
+    @Body()
+    video: {
+      id: string;
+      title: string;
+      description: string;
+      url: string;
+      tags: string[];
+      owner: string;
+      ageConstraint: number;
+    },
+  ): Promise<any> {
     try {
       return await this.userService.uploadVideo(video);
     } catch (error) {

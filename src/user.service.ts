@@ -12,7 +12,7 @@ import { lastValueFrom, Observable } from 'rxjs';
 @Injectable()
 export class UserService implements OnModuleInit {
   private videoService: {
-    findVideosByOwnerIdGrpc(request: { id: string }): Observable<any>;
+    findVideosByOwnerId(request: { id: string }): Observable<any>;
     testGrpc(request: { message: string }): Observable<any>;
 
     uploadVideo(request: {
@@ -20,7 +20,10 @@ export class UserService implements OnModuleInit {
         id: string;
         title: string;
         description: string;
-        ownerId: string;
+        url: string;
+        tags: string[];
+        owner: string;
+        ageConstraint: number;
       };
     }): Observable<any>;
     addComment(request: { id: string; comment: string }): Observable<any>;
@@ -97,11 +100,11 @@ export class UserService implements OnModuleInit {
   }
   // todo: find video
 
-  async findVideosByOwnerIdGrpc(request: { id: string }): Promise<any> {
+  async findVideosByOwnerId(request: { id: string }): Promise<any> {
     try {
       // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
       const result = await lastValueFrom(
-        this.videoService.findVideosByOwnerIdGrpc(request),
+        this.videoService.findVideosByOwnerId(request),
       );
       return result;
     } catch (error) {
@@ -110,17 +113,21 @@ export class UserService implements OnModuleInit {
       throw new NotFoundException('Video not found');
     }
   }
-  testGrpc(message: string): Observable<any> {
-    if (!message) {
-      throw new Error('Request object is undefined');
-    }
-    return this.videoService.testGrpc({ message });
-  }
 
-  async uploadVideo(video: any): Promise<any> {
+  async uploadVideo(video: {
+    id: string;
+    title: string;
+    description: string;
+    url: string;
+    tags: string[];
+    owner: string;
+    ageConstraint: number;
+  }): Promise<any> {
     try {
       // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-      const result = await lastValueFrom(this.videoService.uploadVideo(video));
+      const result = await lastValueFrom(
+        this.videoService.uploadVideo({ video }),
+      );
       return result;
     } catch (error) {
       console.log(error);
@@ -128,12 +135,10 @@ export class UserService implements OnModuleInit {
     }
   }
 
-  async addComment(id: string, comment: string): Promise<any> {
+  async addComment(request: { id: string; comment: string }): Promise<any> {
     try {
       // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-      const result = await lastValueFrom(
-        this.videoService.addComment({ id, comment }),
-      );
+      const result = await lastValueFrom(this.videoService.addComment(request));
       return result;
     } catch (error) {
       console.log(error);
