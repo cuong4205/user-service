@@ -6,17 +6,18 @@ import {
   Query,
   Delete,
   Put,
+  UseGuards,
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import { User } from './model/user.schema';
-import { Observable } from 'rxjs';
 import { UserDto } from './model/user.dto';
+import { JwtRemoteAuthGuard } from './jwt-remote-auth.guard';
 
 @Controller('users')
 export class UserController {
   constructor(private userService: UserService) {}
 
-  @Get('all')
+  @UseGuards(JwtRemoteAuthGuard)
   async getAll(): Promise<User[]> {
     try {
       return await this.userService.getAll();
@@ -94,7 +95,7 @@ export class UserController {
   @Get('video/id')
   async findVideosByOwnerId(@Query('id') id: string): Promise<any> {
     try {
-      return await this.userService.findVideosByOwnerIdGrpc({ id });
+      return await this.userService.findVideosByOwnerId({ id });
     } catch (error) {
       console.error('Error in findVideoByUserId:', error);
       throw error;

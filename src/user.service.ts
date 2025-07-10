@@ -3,6 +3,7 @@ import {
   NotFoundException,
   Inject,
   OnModuleInit,
+  BadRequestException,
 } from '@nestjs/common';
 import { User } from './model/user.schema';
 import { ClientGrpc } from '@nestjs/microservices';
@@ -60,6 +61,7 @@ export class UserService implements OnModuleInit {
     if (!result) {
       throw new NotFoundException('User not found');
     }
+    console.log(result);
     return { user: result };
   }
 
@@ -86,7 +88,7 @@ export class UserService implements OnModuleInit {
   async createUser(user: User): Promise<{ user: User }> {
     const newUser = await this.userRepository.create(user);
     if (!newUser) {
-      throw new NotFoundException('User not found');
+      throw new BadRequestException('User already exists or missing field');
     }
     return { user: newUser };
   }
@@ -108,7 +110,6 @@ export class UserService implements OnModuleInit {
       );
       return result;
     } catch (error) {
-      console.log(request);
       console.log(error);
       throw new NotFoundException('Video not found');
     }
