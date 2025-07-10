@@ -48,8 +48,8 @@ export class UserService implements OnModuleInit {
     return result;
   }
 
-  async findByName(name: string): Promise<User | null> {
-    const result = await this.userRepository.findByName(name);
+  async findByUserName(name: string): Promise<User | null> {
+    const result = await this.userRepository.findByUserName(name);
     if (!result) {
       throw new NotFoundException('User not found');
     }

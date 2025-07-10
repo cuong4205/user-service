@@ -1,4 +1,4 @@
-import { GrpcMethod } from '@nestjs/microservices';
+import { GrpcMethod, RpcException } from '@nestjs/microservices';
 import { UserService } from './user.service';
 import { Controller } from '@nestjs/common';
 import { User } from './model/user.schema';
@@ -13,8 +13,19 @@ export class UserGrpcController {
   }
 
   @GrpcMethod('UserService', 'FindUserByEmail')
-  async findUserByEmail(request: { email: string }): Promise<{ user: User }> {
-    return await this.userService.findUserByEmail(request);
+  async findUserByEmail(data: { email: string }): Promise<any> {
+    const user = await this.userService.findUserByEmail(data);
+    if (!user) {
+      throw new RpcException('User not found');
+    }
+
+    return {
+      id: String(user.user.id ?? ''),
+      user_name: String(user.user.user_name ?? ''),
+      email: String(user.user.email ?? ''),
+      age: Number(user.user.age ?? 0),
+      password: String(user.user.password ?? ''),
+    };
   }
 
   @GrpcMethod('UserService', 'CreateUser')

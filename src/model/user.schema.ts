@@ -8,7 +8,7 @@ export class User {
   id: string;
 
   @Prop({ require: true })
-  name: string;
+  user_name: string;
 
   @Prop()
   age: number;

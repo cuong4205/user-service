@@ -18,9 +18,9 @@ export class UserRepository {
     return this.userModel.findById(id).exec();
   }
 
-  async findByName(name: string): Promise<User | null> {
+  async findByUserName(name: string): Promise<User | null> {
     return this.userModel
-      .findOne({ name: new RegExp(name, 'i') })
+      .findOne({ user_name: new RegExp(name, 'i') })
       .lean()
       .exec();
   }

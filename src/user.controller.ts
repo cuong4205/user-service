@@ -6,6 +6,7 @@ import {
   Query,
   Delete,
   Put,
+  Request,
   UseGuards,
 } from '@nestjs/common';
 import { UserService } from './user.service';
@@ -17,7 +18,7 @@ import { JwtRemoteAuthGuard } from './jwt-remote-auth.guard';
 export class UserController {
   constructor(private userService: UserService) {}
 
-  @UseGuards(JwtRemoteAuthGuard)
+  @Get('all')
   async getAll(): Promise<User[]> {
     try {
       return await this.userService.getAll();
@@ -28,26 +29,32 @@ export class UserController {
   }
 
   @Get('find/byName')
-  async findByName(@Query('name') name: string): Promise<User | null> {
+  async findByUserName(@Query('name') name: string): Promise<User | null> {
     try {
-      return await this.userService.findByName(name);
+      return await this.userService.findByUserName(name);
     } catch (error) {
       console.error('Error in findByName:', error);
       throw error;
     }
   }
 
+  @UseGuards(JwtRemoteAuthGuard)
   @Get('find/byEmail')
   async findUserByEmail(
     @Query('email') email: string,
+    @Request() req,
   ): Promise<{ user: User }> {
     try {
+      console.log(req);
       return await this.userService.findUserByEmail({ email });
     } catch (error) {
       console.error('Error in findUserByEmail:', error);
+      console.log(req);
       throw error;
     }
   }
+
+  @UseGuards(JwtRemoteAuthGuard)
   @Get('find/byId')
   async findUserById(@Query('id') id: string): Promise<{ user: User }> {
     try {
