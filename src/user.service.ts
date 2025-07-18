@@ -56,10 +56,12 @@ export class UserService implements OnModuleInit {
     return result;
   }
 
-  async findUserByEmail(request: { email: string }): Promise<{ user: User }> {
+  async findUserByEmail(request: {
+    email: string;
+  }): Promise<{ user: User } | null> {
     const result = await this.userRepository.findByEmail(request.email);
     if (!result) {
-      throw new NotFoundException('User not found');
+      return null;
     }
     console.log(result);
     return { user: result };
@@ -87,6 +89,7 @@ export class UserService implements OnModuleInit {
 
   async createUser(user: User): Promise<{ user: User }> {
     const newUser = await this.userRepository.create(user);
+    console.log(newUser);
     if (!newUser) {
       throw new BadRequestException('User already exists or missing field');
     }
@@ -125,14 +128,18 @@ export class UserService implements OnModuleInit {
     ageConstraint: number;
   }): Promise<any> {
     try {
+      console.log('uploadVideo', video);
       // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
       const result = await lastValueFrom(
         this.videoService.uploadVideo({ video }),
       );
+      console.log(result);
       return result;
     } catch (error) {
       console.log(error);
-      throw new NotFoundException('Video not found');
+      throw new BadRequestException(
+        'Failed to upload video, please check the age constraint or other fields',
+      );
     }
   }
 

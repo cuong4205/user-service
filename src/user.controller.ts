@@ -8,15 +8,21 @@ import {
   Put,
   Request,
   UseGuards,
+  UnauthorizedException,
+  BadRequestException,
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import { User } from './model/user.schema';
 import { UserDto } from './model/user.dto';
 import { JwtRemoteAuthGuard } from './jwt-remote-auth.guard';
+import { NotificationProducer } from './kafka/notification.producer';
 
 @Controller('users')
 export class UserController {
-  constructor(private userService: UserService) {}
+  constructor(
+    private userService: UserService,
+    private notificationProducer: NotificationProducer,
+  ) {}
 
   @Get('all')
   async getAll(): Promise<User[]> {
@@ -38,12 +44,11 @@ export class UserController {
     }
   }
 
-  @UseGuards(JwtRemoteAuthGuard)
   @Get('find/byEmail')
   async findUserByEmail(
     @Query('email') email: string,
     @Request() req,
-  ): Promise<{ user: User }> {
+  ): Promise<{ user: User } | null> {
     try {
       console.log(req);
       return await this.userService.findUserByEmail({ email });
@@ -69,6 +74,10 @@ export class UserController {
   @Post('create')
   async createUser(@Body() user: User): Promise<{ user: User }> {
     try {
+      this.notificationProducer.emitSendEmail(
+        user.email,
+        'Welcome to our service!',
+      );
       return await this.userService.createUser(user);
     } catch (error) {
       console.error('Error in createUser:', error);
@@ -76,12 +85,25 @@ export class UserController {
     }
   }
 
+  @UseGuards(JwtRemoteAuthGuard)
   @Put('update')
   async updateUser(
     @Body() updateUser: UserDto,
     @Query('id') id: string,
+    @Request()
+    req: Request & { user: { id: string; email: string; age: number } },
   ): Promise<User> {
+    if (req.user.id !== id) {
+      throw new UnauthorizedException(
+        'You can only update your own user information',
+      );
+    }
+
     try {
+      this.notificationProducer.emitSendEmail(
+        updateUser.email,
+        'Your profile has been updated',
+      );
       return await this.userService.updateUser(updateUser, id);
     } catch (error) {
       console.error('Error in updateUser:', error);
@@ -89,9 +111,23 @@ export class UserController {
     }
   }
 
+  @UseGuards(JwtRemoteAuthGuard)
   @Delete('delete')
-  async deleteUserById(@Query('id') id: string): Promise<User | null> {
+  async deleteUserById(
+    @Query('id') id: string,
+    @Request()
+    req: Request & { user: { id: string; email: string; age: number } },
+  ): Promise<User | null> {
+    if (req.user.id !== id) {
+      throw new UnauthorizedException(
+        'You can only delete your own user information',
+      );
+    }
     try {
+      this.notificationProducer.emitSendEmail(
+        req.user.email,
+        'Your account has been deleted',
+      );
       return await this.userService.deleteUserById(id);
     } catch (error) {
       console.error('Error in deleteUserById:', error);
@@ -109,6 +145,7 @@ export class UserController {
     }
   }
 
+  @UseGuards(JwtRemoteAuthGuard)
   @Post('video')
   async uploadVideo(
     @Body()
@@ -121,11 +158,34 @@ export class UserController {
       owner: string;
       ageConstraint: number;
     },
+    @Request()
+    req: Request & { user: { id: string; email: string; age: number } },
   ): Promise<any> {
+    if (video.ageConstraint > req.user.age) {
+      throw new BadRequestException(
+        'You are not allowed to upload videos with age constraints higher than your age',
+      );
+    }
     try {
+      console.log(req.user);
+      console.log(`upload video: `, video);
+      video.owner = req.user.id;
       return await this.userService.uploadVideo(video);
     } catch (error) {
       console.error('Error in uploadVideo:', error);
+      throw error;
+    }
+  }
+
+  @UseGuards(JwtRemoteAuthGuard)
+  @Put('comment')
+  async addComment(
+    @Body() request: { id: string; comment: string },
+  ): Promise<any> {
+    try {
+      return await this.userService.addComment(request);
+    } catch (error) {
+      console.error('Error in addComment:', error);
       throw error;
     }
   }

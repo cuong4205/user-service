@@ -14,6 +14,8 @@ import { LoggerMiddleware } from './middleware/loggerMiddleware';
 import { UserGrpcController } from './user-grpc.controller';
 import { JwtRemoteAuthGuard } from './jwt-remote-auth.guard';
 import { AuthClientsModule } from './grpc client/auth-client.module';
+import { KafkaModule } from './kafka/kafka.module';
+import { NotificationProducer } from './kafka/notification.producer';
 
 @Module({
   imports: [
@@ -26,9 +28,15 @@ import { AuthClientsModule } from './grpc client/auth-client.module';
     UserDatabaseModule,
     VideoClientsModule,
     AuthClientsModule,
+    KafkaModule,
   ],
   controllers: [UserController, UserGrpcController],
-  providers: [UserService, UserRepository, JwtRemoteAuthGuard],
+  providers: [
+    UserService,
+    UserRepository,
+    JwtRemoteAuthGuard,
+    NotificationProducer,
+  ],
   exports: [UserService],
 })
 export class UserModule implements NestModule {

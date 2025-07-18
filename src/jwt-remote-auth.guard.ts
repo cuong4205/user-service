@@ -15,6 +15,7 @@ interface AuthGrpcService {
     valid: boolean;
     userId: string;
     email: string;
+    age: number;
   }>;
 }
 
@@ -49,9 +50,10 @@ export class JwtRemoteAuthGuard implements CanActivate, OnModuleInit {
       throw new UnauthorizedException('Token invalid');
     }
 
-    (request as any).user = {
-      userId: result.userId,
+    request.user = {
+      id: result.userId,
       email: result.email,
+      age: result.age,
     };
 
     return true;
