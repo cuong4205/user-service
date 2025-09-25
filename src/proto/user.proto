@@ -22,6 +22,7 @@ message UserResponse {
   string email = 3;
   int32 age = 4;
   string password = 5;
+  repeated string subscribers = 6;
 }
 
 message FindUserByIdRequest { string id = 1; }

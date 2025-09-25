@@ -1,11 +1,15 @@
-import { GrpcMethod, RpcException } from '@nestjs/microservices';
+import { GrpcMethod } from '@nestjs/microservices';
 import { UserService } from './user.service';
 import { Controller } from '@nestjs/common';
 import { User } from './model/user.schema';
+import { NotificationProducer } from './kafka/notification.producer';
 
 @Controller()
 export class UserGrpcController {
-  constructor(private readonly userService: UserService) {}
+  constructor(
+    private readonly userService: UserService,
+    private readonly notificationProducer: NotificationProducer,
+  ) {}
 
   @GrpcMethod('UserService', 'FindUserById')
   async findUserById(request: { id: string }): Promise<{ user: User }> {
@@ -24,18 +28,15 @@ export class UserGrpcController {
         password: String(user.user.password ?? ''),
       };
     }
-    return {
-      id: '',
-      user_name: '',
-      email: '',
-      age: 0,
-      password: '',
-    };
   }
 
   @GrpcMethod('UserService', 'CreateUser')
   async createUser(user: User): Promise<{ user: User }> {
     console.log('grpc user', user);
+    this.notificationProducer.emitSendEmail(
+      user.email,
+      `Welcome ${user.user_name}, your account has been created successfully!`,
+    );
     return await this.userService.createUser(user);
   }
 }

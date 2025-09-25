@@ -5,9 +5,9 @@ package video;
 service VideoService {
   rpc FindVideosByOwnerId(FindVideosByOwnerIdRequest)
       returns (VideoListResponse);
-  rpc TestGrpc(TestRequest) returns (TestResponse);
   rpc UploadVideo(VideoRequest) returns (VideoResponse);
   rpc AddComment(AddCommentRequest) returns (VideoResponse);
+  rpc FindAll(Empty) returns (VideoListResponse);
 }
 
 message FindVideosByOwnerIdRequest { string id = 1; }
@@ -16,7 +16,7 @@ message VideoRequest {
   string id = 1;
   string title = 2;
   string description = 3;
-  string url = 4;
+  string filePath = 4;
   repeated string tags = 5;
   string owner = 6;
   int32 ageConstraint = 7;
@@ -31,12 +31,10 @@ message VideoResponse {
   string id = 1;
   string title = 2;
   string description = 3;
-  string url = 4;
+  string filePath = 4;
   repeated string comment = 5;
 }
 
-message TestRequest { string message = 1; }
-
-message TestResponse { string message = 1; }
+message Empty {}
 
 message VideoListResponse { repeated VideoResponse videos = 1; }

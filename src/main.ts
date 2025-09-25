@@ -32,4 +32,4 @@ async function bootstrap() {
   await grpcApp.listen();
   console.log('User service started');
 }
-bootstrap();
+void bootstrap();

@@ -18,6 +18,9 @@ export class User {
 
   @Prop({ unique: true, index: true })
   email: string;
+
+  @Prop()
+  subscribers: string[];
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);
