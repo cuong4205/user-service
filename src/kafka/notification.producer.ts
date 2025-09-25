@@ -8,7 +8,7 @@ export class NotificationProducer {
   async onModuleInit() {
     this.client.subscribeToResponseOf('send.email');
     await this.client.connect();
-    console.log('VideoProducer initialized');
+    console.log('Notificatino producer initialized');
   }
 
   emitSendEmail(addr: string, message: string) {

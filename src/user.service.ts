@@ -10,6 +10,8 @@ import { ClientGrpc } from '@nestjs/microservices';
 import { UserDto } from './model/user.dto';
 import { UserRepository } from './user.repository';
 import { lastValueFrom, Observable } from 'rxjs';
+import { Types } from 'mongoose';
+import { NotificationProducer } from './kafka/notification.producer';
 @Injectable()
 export class UserService implements OnModuleInit {
   private videoService: {
@@ -33,6 +35,7 @@ export class UserService implements OnModuleInit {
   constructor(
     private readonly userRepository: UserRepository,
     @Inject('VIDEO_PACKAGE') private client: ClientGrpc,
+    private readonly notificationProducer: NotificationProducer,
   ) {}
 
   onModuleInit() {
@@ -67,15 +70,23 @@ export class UserService implements OnModuleInit {
     return { user: result };
   }
 
-  async findUserById(request: { id: string }): Promise<{ user: User }> {
-    const result = await this.userRepository.findById(request.id);
+  async findUserByUId(id: string): Promise<User> {
+    const result = await this.userRepository.findByUId(id);
     if (!result) {
-      console.log(request);
       console.log(result);
       throw new NotFoundException('Cannot find user');
     }
     console.log('succes');
-    console.log(result);
+    return result;
+  }
+
+  async findUserById(request: { id: string }): Promise<{ user: User }> {
+    const result = await this.userRepository.findById(request.id);
+    if (!result) {
+      console.log(result);
+      throw new NotFoundException('Cannot find user');
+    }
+    console.log(result.user_name);
     return { user: result };
   }
 
@@ -84,6 +95,10 @@ export class UserService implements OnModuleInit {
     if (!updatedUser) {
       throw new NotFoundException('User not found');
     }
+    this.notificationProducer.emitSendEmail(
+      updatedUser.email,
+      'Your profile has been updated',
+    );
     return updatedUser;
   }
 
@@ -93,6 +108,10 @@ export class UserService implements OnModuleInit {
     if (!newUser) {
       throw new BadRequestException('User already exists or missing field');
     }
+    this.notificationProducer.emitSendEmail(
+      user.email,
+      'Welcome to our service!',
+    );
     return { user: newUser };
   }
 
@@ -101,6 +120,10 @@ export class UserService implements OnModuleInit {
     if (!result) {
       throw new NotFoundException('User not found');
     }
+    this.notificationProducer.emitSendEmail(
+      result.email,
+      'Your account has been deleted',
+    );
     return result;
   }
   // todo: find video
@@ -128,10 +151,20 @@ export class UserService implements OnModuleInit {
     ageConstraint: number;
   }): Promise<any> {
     try {
-      console.log('uploadVideo', video);
+      console.log('uploadVideo input:', JSON.stringify(video, null, 2));
+
+      const request = {
+        video: {
+          ...video,
+          owner: new Types.ObjectId(video.owner).toString(), // or just new Types.ObjectId(video.owner)
+        },
+      };
+
+      console.log('Converted request:', request);
+
       // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
       const result = await lastValueFrom(
-        this.videoService.uploadVideo({ video }),
+        this.videoService.uploadVideo(request),
       );
       console.log(result);
       return result;
@@ -151,6 +184,15 @@ export class UserService implements OnModuleInit {
     } catch (error) {
       console.log(error);
       throw new NotFoundException('Video not found');
+    }
+  }
+
+  async subscribe(email: string, subscriber: string): Promise<void> {
+    try {
+      await this.userRepository.subscribe(email, subscriber);
+    } catch (error) {
+      console.error('Something bad happened', error);
+      throw error;
     }
   }
 }

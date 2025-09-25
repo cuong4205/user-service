@@ -16,6 +16,7 @@ import { JwtRemoteAuthGuard } from './jwt-remote-auth.guard';
 import { AuthClientsModule } from './grpc client/auth-client.module';
 import { KafkaModule } from './kafka/kafka.module';
 import { NotificationProducer } from './kafka/notification.producer';
+import { CounterSchema } from './model/counter.schema';
 
 @Module({
   imports: [
@@ -23,7 +24,10 @@ import { NotificationProducer } from './kafka/notification.producer';
       isGlobal: true,
       load: [mongoConfig],
     }),
-    MongooseModule.forFeature([{ name: User.name, schema: UserSchema }]),
+    MongooseModule.forFeature([
+      { name: User.name, schema: UserSchema },
+      { name: 'Counter', schema: CounterSchema },
+    ]),
     UserClientsModule,
     UserDatabaseModule,
     VideoClientsModule,

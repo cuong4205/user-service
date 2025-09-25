@@ -10,19 +10,18 @@ import {
   UseGuards,
   UnauthorizedException,
   BadRequestException,
+  UseFilters,
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import { User } from './model/user.schema';
 import { UserDto } from './model/user.dto';
 import { JwtRemoteAuthGuard } from './jwt-remote-auth.guard';
-import { NotificationProducer } from './kafka/notification.producer';
+import { HttpExceptionFilter } from './filters/http-exception.filter';
 
+@UseFilters(HttpExceptionFilter)
 @Controller('users')
 export class UserController {
-  constructor(
-    private userService: UserService,
-    private notificationProducer: NotificationProducer,
-  ) {}
+  constructor(private userService: UserService) {}
 
   @Get('all')
   async getAll(): Promise<User[]> {
@@ -74,10 +73,6 @@ export class UserController {
   @Post('create')
   async createUser(@Body() user: User): Promise<{ user: User }> {
     try {
-      this.notificationProducer.emitSendEmail(
-        user.email,
-        'Welcome to our service!',
-      );
       return await this.userService.createUser(user);
     } catch (error) {
       console.error('Error in createUser:', error);
@@ -100,10 +95,6 @@ export class UserController {
     }
 
     try {
-      this.notificationProducer.emitSendEmail(
-        updateUser.email,
-        'Your profile has been updated',
-      );
       return await this.userService.updateUser(updateUser, id);
     } catch (error) {
       console.error('Error in updateUser:', error);
@@ -124,10 +115,6 @@ export class UserController {
       );
     }
     try {
-      this.notificationProducer.emitSendEmail(
-        req.user.email,
-        'Your account has been deleted',
-      );
       return await this.userService.deleteUserById(id);
     } catch (error) {
       console.error('Error in deleteUserById:', error);
@@ -169,7 +156,6 @@ export class UserController {
     try {
       console.log(req.user);
       console.log(`upload video: `, video);
-      video.owner = req.user.id;
       return await this.userService.uploadVideo(video);
     } catch (error) {
       console.error('Error in uploadVideo:', error);
@@ -186,6 +172,21 @@ export class UserController {
       return await this.userService.addComment(request);
     } catch (error) {
       console.error('Error in addComment:', error);
+      throw error;
+    }
+  }
+
+  @UseGuards(JwtRemoteAuthGuard)
+  @Put('subscribe')
+  async subscribe(
+    @Query('email') email: string,
+    @Request()
+    req: Request & { user: { id: string; email: string; age: number } },
+  ): Promise<void> {
+    try {
+      return await this.userService.subscribe(email, req.user.email);
+    } catch (error) {
+      console.error('Please check the email you provide', error);
       throw error;
     }
   }
